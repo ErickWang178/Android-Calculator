@@ -24,6 +24,7 @@ import util.MathHelper;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     boolean isComplied = false;
     private String mathExpress = "";
+    private String formerResult = ""; //保存上次计算的结果，用于下次计算使用。
 
     private TextView tv_result;
 
@@ -98,12 +99,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
+        int id = view.getId();
         if (isComplied == true){
-            mathExpress = "";
-            tv_result.setText(mathExpress);
+            if (id == R.id.btn_0 || id == R.id.btn_1 || id == R.id.btn_2 || id == R.id.btn_3
+                    || id == R.id.btn_4 || id == R.id.btn_5 || id == R.id.btn_6
+                    || id == R.id.btn_7 || id == R.id.btn_8 || id == R.id.btn_9 ){
+                mathExpress = "";
+                tv_result.setText(mathExpress);
+
+            } else if (id == R.id.btn_add || id == R.id.btn_sub || id == R.id.btn_mul
+                    || id == R.id.btn_div || id == R.id.btn_eq){
+                mathExpress = formerResult;
+                tv_result.setText(mathExpress);
+
+            } else if (id == R.id.btn_del){
+                mathExpress = "";
+                tv_result.setText(mathExpress);
+            }
+            isComplied = false;
         }
 
-        isComplied = false;
+
         String msg = "";
         switch (view.getId()){
             case R.id.btn_0:
@@ -165,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mathExpress = "";
                 break;
             case R.id.btn_del:
+
                 if (mathExpress.length() > 0) {
                     mathExpress = mathExpress.substring(0, mathExpress.length() - 1);
                 }
@@ -192,6 +209,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String result = calculate(mathExpress);
             showMessage(result);
             isComplied = true;
+
+            formerResult = result;
         }
     }
 
@@ -284,16 +303,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         boolean hasNum = false;
 
         for (int i=0; i<mathExpress.length(); i++){
+            if (i == 0 && mathExpress.charAt(i) == '-'){
+                list.add(num1 + "");
+                list.add("-");
+                continue;
+            }
+
             if(Character.isDigit(mathExpress.charAt(i)) || mathExpress.charAt(i) == '.'){
                 if(Character.isDigit(mathExpress.charAt(i))) {
                     //构造整数部分
                     num1 = num1 * 10 + (mathExpress.charAt(i) - '0');
+
                     hasNum = true;
                 }
                 //构造小数部分
                 double fractional = 0.0;
                 if ( mathExpress.charAt(i) == '.'){
-                    int index = 1;
                     double base = 1;
 
                     while(Character.isDigit(mathExpress.charAt(++ i))){
@@ -303,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     i --;
                 }
                 num1 += fractional;
-
             } else {
                 if (hasNum == true) {
                     list.add(num1 + "");
@@ -314,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
+        //打印数学表达式
         for (int i=0; i<list.size(); i++){
             Log.d("wyg",list.get(i) + "  ");
         }
