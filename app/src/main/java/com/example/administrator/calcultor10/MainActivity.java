@@ -229,6 +229,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Stack<String> symbolStack = new Stack<>();
         String result = "";
 
+        if (mathList == null){
+            return "Error";
+        }
+
         //对表达式进行计算，符号进入符号栈，数字进入数字栈，并按照运算符优先级进行运算
         for (int i=0; i<mathList.size(); i++){
             String cur = mathList.get(i);
@@ -294,14 +298,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //将字符串拆分为字符串数组
     private List<String> processMathExpress(String mathExpress) {
-        if (mathExpress.length() < 0){
-            return null;
-        }
-
         List<String> list = new ArrayList<>();
         double num1 = 0;
         boolean hasNum = false;
+        int dotCount = 0; //记录小数点的个数
 
+        if (mathExpress.length() < 0){
+            return null;
+        }
         for (int i=0; i<mathExpress.length(); i++){
             if (i == 0 && mathExpress.charAt(i) == '-'){
                 list.add(num1 + "");
@@ -318,14 +322,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 //构造小数部分
                 double fractional = 0.0;
+                dotCount = 0;
                 if ( mathExpress.charAt(i) == '.'){
                     double base = 1;
-
-                    while(Character.isDigit(mathExpress.charAt(++ i))){
+                    dotCount ++;
+                    while(Character.isDigit(mathExpress.charAt(++ i)) || mathExpress.charAt(i) == '.'){
                         base *= 0.1;
                         fractional += base * (mathExpress.charAt(i) - '0');
+
+                        if (mathExpress.charAt(i) == '.') {
+                            dotCount++;
+                        }
                     }
                     i --;
+
+                    if (dotCount > 1){ //如果一个数字里面有多个小数点，则返回null
+                        return null;
+                    }
                 }
                 num1 += fractional;
             } else {
